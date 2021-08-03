@@ -1,0 +1,140 @@
+root@e79aa57037f2:/nginx-image/kube-hunter# python3 kube_hunter --active
+Choose one of the options below:
+1. Remote scanning      (scans one or more specific IPs or DNS names)
+2. Interface scanning   (scans subnets on all local network interfaces)
+3. IP range scanning    (scans a given IP range)
+Your choice: 1
+Remotes (separated by a ','): 10.22.0.123
+2020-10-08 19:21:17,793 INFO kube_hunter.modules.report.collector Started hunting
+2020-10-08 19:21:17,793 INFO kube_hunter.modules.report.collector Discovering Open Kubernetes Services
+2020-10-08 19:21:17,811 INFO kube_hunter.modules.report.collector Found open service "Etcd" at 10.22.0.123:2379
+2020-10-08 19:21:17,830 INFO kube_hunter.modules.report.collector Found open service "Kubelet API" at 10.22.0.123:10250
+2020-10-08 19:21:17,832 INFO kube_hunter.modules.report.collector Found vulnerability "Anonymous Authentication" in 10.22.0.123:10250
+2020-10-08 19:21:17,840 INFO kube_hunter.modules.report.collector Found open service "API Server" at 10.22.0.123:6443
+2020-10-08 19:21:17,854 INFO kube_hunter.modules.report.collector Found vulnerability "K8s Version Disclosure" in 10.22.0.123:6443
+2020-10-08 19:21:17,863 INFO kube_hunter.modules.report.collector Found vulnerability "Exposed Pods" in 10.22.0.123:10250
+2020-10-08 19:21:17,864 INFO kube_hunter.modules.report.collector Found vulnerability "Cluster Health Disclosure" in 10.22.0.123:10250
+2020-10-08 19:21:17,868 INFO kube_hunter.modules.report.collector Found vulnerability "Exposed Running Pods" in 10.22.0.123:10250
+2020-10-08 19:21:17,871 INFO kube_hunter.modules.report.collector Found vulnerability "Exposed Kubelet Cmdline" in 10.22.0.123:10250
+2020-10-08 19:21:17,883 INFO kube_hunter.modules.report.collector Found vulnerability "Exposed Container Logs" in 10.22.0.123:10250
+2020-10-08 19:21:17,913 INFO kube_hunter.modules.report.collector Found vulnerability "Exposed Run Inside Container" in 10.22.0.123:10250
+2020-10-08 19:21:17,952 INFO kube_hunter.modules.report.collector Found vulnerability "Exposed System Logs" in 10.22.0.123:10250
+2020-10-08 19:21:19,274 INFO kube_hunter.modules.report.collector Found vulnerability "Exposed Existing Privileged Container(s) Via Secure Kubelet Port" in 10.22.0.123:10250
+2020-10-08 19:21:27,407 WARNING kube_hunter.modules.hunting.kubelet kube-hunter: POD=admin-pod, CONTAINER=admin-pod - Unable to unmount /dev/xvda1 at: /kube-hunter_71710dce-099b-11eb-9b52-0242ac110005
+
+Nodes
++-------------+-------------+
+| TYPE        | LOCATION    |
++-------------+-------------+
+| Node/Master | 10.22.0.123 |
++-------------+-------------+
+
+Detected Services
++-------------+-------------------+----------------------+
+| SERVICE     | LOCATION          | DESCRIPTION          |
++-------------+-------------------+----------------------+
+| Kubelet API | 10.22.0.123:10250 | The Kubelet is the   |
+|             |                   | main component in    |
+|             |                   | every Node, all pod  |
+|             |                   | operations goes      |
+|             |                   | through the kubelet  |
++-------------+-------------------+----------------------+
+| Etcd        | 10.22.0.123:2379  | Etcd is a DB that    |
+|             |                   | stores cluster's     |
+|             |                   | data, it contains    |
+|             |                   | configuration and    |
+|             |                   | current              |
+|             |                   |     state            |
+|             |                   | information, and     |
+|             |                   | might contain        |
+|             |                   | secrets              |
++-------------+-------------------+----------------------+
+| API Server  | 10.22.0.123:6443  | The API server is in |
+|             |                   | charge of all        |
+|             |                   | operations on the    |
+|             |                   | cluster.             |
++-------------+-------------------+----------------------+
+
+Vulnerabilities
+For further information about a vulnerability, search its ID in:
+https://github.com/aquasecurity/kube-hunter/tree/master/docs/_kb
++--------+-------------------+----------------------+----------------------+----------------------+----------------------+
+| ID     | LOCATION          | CATEGORY             | VULNERABILITY        | DESCRIPTION          | EVIDENCE             |
++--------+-------------------+----------------------+----------------------+----------------------+----------------------+
+| KHV040 | 10.22.0.123:10250 | Remote Code          | Exposed Run Inside   | An attacker could    | uname -a: Linux      |
+|        |                   | Execution            | Container            | run an arbitrary     | admin-pod            |
+|        |                   |                      |                      | command inside a     | 5.4.0-1025-aws...    |
+|        |                   |                      |                      | container            |                      |
++--------+-------------------+----------------------+----------------------+----------------------+----------------------+
+| KHV036 | 10.22.0.123:10250 | Remote Code          | Anonymous            | The kubelet is       | The following        |
+|        |                   | Execution            | Authentication       | misconfigured,       | containers have been |
+|        |                   |                      |                      | potentially allowing | succe...             |
+|        |                   |                      |                      | secure access to all |                      |
+|        |                   |                      |                      | requests on the      |                      |
+|        |                   |                      |                      | kubelet,             |                      |
+|        |                   |                      |                      |     without the need |                      |
+|        |                   |                      |                      | to authenticate      |                      |
++--------+-------------------+----------------------+----------------------+----------------------+----------------------+
+| None   | 10.22.0.123:10250 | Information          | Exposed Pods         | An attacker could    | count: 9             |
+|        |                   | Disclosure           |                      | view sensitive       |                      |
+|        |                   |                      |                      | information about    |                      |
+|        |                   |                      |                      | pods that are        |                      |
+|        |                   |                      |                      |     bound to a Node  |                      |
+|        |                   |                      |                      | using the /pods      |                      |
+|        |                   |                      |                      | endpoint             |                      |
++--------+-------------------+----------------------+----------------------+----------------------+----------------------+
+| KHV046 | 10.22.0.123:10250 | Information          | Exposed Kubelet      | Commandline flags    | cmdline: /usr/bin/ku |
+|        |                   | Disclosure           | Cmdline              | that were passed to  | belet --bootstrap-    |
+|        |                   |                      |                      | the kubelet can be   | ku...                |
+|        |                   |                      |                      | obtained from the    |                      |
+|        |                   |                      |                      | pprof endpoints      |                      |
++--------+-------------------+----------------------+----------------------+----------------------+----------------------+
+| KHV045 | 10.22.0.123:10250 | Information          | Exposed System Logs  | System logs are      | audit log: []        |
+|        |                   | Disclosure           |                      | exposed from the     |                      |
+|        |                   |                      |                      | /logs endpoint on    |                      |
+|        |                   |                      |                      | the kubelet          |                      |
++--------+-------------------+----------------------+----------------------+----------------------+----------------------+
+| KHV043 | 10.22.0.123:10250 | Information          | Cluster Health       | By accessing the     | status: ok           |
+|        |                   | Disclosure           | Disclosure           | open /healthz        |                      |
+|        |                   |                      |                      | handler,             |                      |
+|        |                   |                      |                      |     an attacker      |                      |
+|        |                   |                      |                      | could get the        |                      |
+|        |                   |                      |                      | cluster health state |                      |
+|        |                   |                      |                      | without              |                      |
+|        |                   |                      |                      | authenticating       |                      |
++--------+-------------------+----------------------+----------------------+----------------------+----------------------+
+| KHV038 | 10.22.0.123:10250 | Information          | Exposed Running Pods | Outputs a list of    | 9 running pods       |
+|        |                   | Disclosure           |                      | currently running    |                      |
+|        |                   |                      |                      | pods,                |                      |
+|        |                   |                      |                      |     and some of      |                      |
+|        |                   |                      |                      | their metadata,      |                      |
+|        |                   |                      |                      | which can reveal     |                      |
+|        |                   |                      |                      | sensitive            |                      |
+|        |                   |                      |                      | information          |                      |
++--------+-------------------+----------------------+----------------------+----------------------+----------------------+
+| KHV037 | 10.22.0.123:10250 | Information          | Exposed Container    | Output logs from a   | kube-flannel: I1005  |
+|        |                   | Disclosure           | Logs                 | running container    | 13:29:26.528649      |
+|        |                   |                      |                      | are using the        | ...                  |
+|        |                   |                      |                      | exposed              |                      |
+|        |                   |                      |                      | /containerLogs       |                      |
+|        |                   |                      |                      | endpoint             |                      |
++--------+-------------------+----------------------+----------------------+----------------------+----------------------+
+| KHV002 | 10.22.0.123:6443  | Information          | K8s Version          | The kubernetes       | v1.19.2              |
+|        |                   | Disclosure           | Disclosure           | version could be     |                      |
+|        |                   |                      |                      | obtained from the    |                      |
+|        |                   |                      |                      | /version endpoint    |                      |
++--------+-------------------+----------------------+----------------------+----------------------+----------------------+
+| KHV051 | 10.22.0.123:10250 | Access Risk          | Exposed Existing     | A malicious actor,   | The following        |
+|        |                   |                      | Privileged           | that has confirmed   | exposed existing     |
+|        |                   |                      | Container(s) Via     | anonymous access to  | privilege...         |
+|        |                   |                      | Secure Kubelet Port  | the API via the      |                      |
+|        |                   |                      |                      | kubelet's secure     |                      |
+|        |                   |                      |                      | port, can leverage   |                      |
+|        |                   |                      |                      | the existing         |                      |
+|        |                   |                      |                      | privileged           |                      |
+|        |                   |                      |                      | containers           |                      |
+|        |                   |                      |                      | identified to damage |                      |
+|        |                   |                      |                      | the host and         |                      |
+|        |                   |                      |                      | potentially the      |                      |
+|        |                   |                      |                      | whole cluster        |                      |
++--------+-------------------+----------------------+----------------------+----------------------+----------------------+
