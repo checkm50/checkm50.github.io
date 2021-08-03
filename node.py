@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello_world():
-    out = subprocess.Popen(['cat', '/root/Recon/sample.txt'],
+    out = subprocess.Popen(['cat', 'PutFilePathHere'],
                stdout=subprocess.PIPE,
                           stderr=subprocess.STDOUT)
     stdout,stderr = out.communicate()
