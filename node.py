@@ -3,4 +3,6 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello_world():
-    return 'Hello World!'
+    msg = 'Typing Cat on'
+    msgToReturn = msg + host
+    return msgToReturn
